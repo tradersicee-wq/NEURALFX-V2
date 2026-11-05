@@ -1,0 +1,146 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEURALFX V2</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#080d18;color:#eaf0ff;font-family:Arial,sans-serif}
+header{padding:20px;background:#101a2c;border-bottom:1px solid #26334b}
+.logo{font-size:25px;font-weight:bold;color:#32d6a0}
+small{color:#91a3bb}
+main{padding:15px;max-width:1000px;margin:auto}
+.card{background:#111c30;border:1px solid #263650;border-radius:13px;padding:16px;margin-bottom:14px}
+.balance{font-size:30px;font-weight:bold;color:#32d6a0;margin-top:8px}
+.row{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+select,input{background:#091323;color:white;border:1px solid #354764;padding:12px;border-radius:7px;width:100%;margin:7px 0}
+button{border:0;border-radius:8px;padding:13px;font-weight:bold;cursor:pointer}
+.buy{background:#16bd86;color:#06150f;flex:1}
+.sell{background:#e65364;color:white;flex:1}
+.chart{height:210px;background:#091323;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#8296b4}
+table{width:100%;border-collapse:collapse;font-size:12px}
+td,th{padding:10px 5px;border-bottom:1px solid #263650;text-align:left}
+.green{color:#32d6a0}
+.red{color:#ff6678}
+</style>
+</head>
+<body>
+<header>
+<div class="logo">NEURALFX V2</div>
+<small>SMART FOREX TRADING TERMINAL</small>
+</header>
+<main>
+<div class="card">
+<small>DEMO ACCOUNT BALANCE</small>
+<div class="balance" id="balance">$100.00</div>
+<div class="row">
+<div>Equity: <b id="equity">$100.00</b></div>
+<div>Open trades: <b id="count">0</b></div>
+</div>
+</div>
+
+<div class="card">
+<h3>Market overview</h3>
+<select id="pair">
+<option>EURUSD</option>
+<option>GBPUSD</option>
+<option>USDJPY</option>
+<option>XAUUSD</option>
+<option>US30</option>
+<option>NAS100</option>
+</select>
+<select id="timeframe">
+<option>M1</option><option>M5</option>
+<option>M15</option><option>M30</option>
+<option>H1</option><option>H4</option><option>D1</option>
+</select>
+<div class="chart" id="chart">Chart connection coming next</div>
+</div>
+
+<div class="card">
+<h3>Place demo trade</h3>
+<label>Lot size</label>
+<input id="lot" type="number" value="0.01" min="0.01" step="0.01">
+<label>Entry price</label>
+<input id="entry" type="number" step="any" placeholder="Enter price">
+<label>Stop Loss</label>
+<input id="sl" type="number" step="any" placeholder="Stop loss">
+<label>Take Profit</label>
+<input id="tp" type="number" step="any" placeholder="Take profit">
+<div class="row">
+<button class="buy" onclick="openTrade('BUY')">BUY</button>
+<button class="sell" onclick="openTrade('SELL')">SELL</button>
+</div>
+</div>
+
+<div class="card">
+<h3>Open positions</h3>
+<div style="overflow-x:auto">
+<table>
+<thead><tr><th>Pair</th><th>Side</th><th>Lot</th><th>Entry</th><th>SL</th><th>TP</th><th>Action</th></tr></thead>
+<tbody id="positions"></tbody>
+</table>
+</div>
+</div>
+
+<div class="card">
+<h3>Trade history</h3>
+<div style="overflow-x:auto">
+<table>
+<thead><tr><th>Pair</th><th>Side</th><th>Result</th></tr></thead>
+<tbody id="history"></tbody>
+</table>
+</div>
+</div>
+</main>
+<script>
+let balance=100;
+let trades=[];
+let history=[];
+
+function render(){
+document.getElementById('balance').textContent='$'+balance.toFixed(2);
+document.getElementById('equity').textContent='$'+balance.toFixed(2);
+document.getElementById('count').textContent=trades.length;
+document.getElementById('positions').innerHTML=trades.map(t=>
+`<tr><td>${t.pair}</td><td>${t.side}</td><td>${t.lot}</td><td>${t.entry}</td><td>${t.sl}</td><td>${t.tp}</td><td><button onclick="closeTrade(${t.id})">Close</button></td></tr>`
+).join('');
+document.getElementById('history').innerHTML=history.map(t=>
+`<tr><td>${t.pair}</td><td>${t.side}</td><td>${t.result}</td></tr>`
+).join('');
+}
+
+function openTrade(side){
+let pair=document.getElementById('pair').value;
+let lot=Number(document.getElementById('lot').value);
+let entry=Number(document.getElementById('entry').value);
+let sl=Number(document.getElementById('sl').value);
+let tp=Number(document.getElementById('tp').value);
+
+if(!Number.isFinite(lot)||lot<0.01||!Number.isFinite(entry)||entry<=0||!Number.isFinite(sl)||!Number.isFinite(tp)){
+alert('Enter valid lot, entry, SL and TP.');
+return;
+}
+if((side==='BUY'&&(sl>=entry||tp<=entry))||
+(side==='SELL'&&(sl<=entry||tp>=entry))){
+alert('Check your Stop Loss and Take Profit direction.');
+return;
+}
+trades.push({id:Date.now(),pair,side,lot,entry,sl,tp});
+render();
+alert(side+' demo trade opened.');
+}
+
+function closeTrade(id){
+let index=trades.findIndex(t=>t.id===id);
+if(index<0)return;
+let t=trades.splice(index,1)[0];
+history.unshift({pair:t.pair,side:t.side,result:'Closed (P/L not connected)'});
+render();
+}
+render();
+</script>
+</body>
+</html>
