@@ -183,8 +183,8 @@ render();
     US30: "CAPITALCOM:US30",
     NAS100: "NASDAQ:NDX"
   };
-
-  pairSelector.addEventListener("change", function () {
+function updateChart() {pairSelector.addEventListener("change", updateChart);
+timeframeSelector.addEventListener("change", updateChart);
     const symbol = symbols[this.value];
     if (!symbol) return;
 
@@ -204,7 +204,7 @@ render();
     script.innerHTML = JSON.stringify({
       autosize: true,
       symbol: symbol,
-      interval: "5",
+      interval: timeframeSelector.value,
       timezone: "Africa/Johannesburg",
       theme: "dark",
       style: "1",
