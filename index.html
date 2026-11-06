@@ -160,5 +160,54 @@ render();
 }
 render();
 </script>
+<script>
+(function () {
+  const pairSelector = document.getElementById("pair");
+  const chart = document.querySelector("#chart");
+
+  if (!pairSelector || !chart) return;
+
+  const symbols = {
+    EURUSD: "OANDA:EURUSD",
+    GBPUSD: "OANDA:GBPUSD",
+    USDJPY: "OANDA:USDJPY",
+    XAUUSD: "OANDA:XAUUSD",
+    US30: "CAPITALCOM:US30",
+    NAS100: "NASDAQ:NDX"
+  };
+
+  pairSelector.addEventListener("change", function () {
+    const symbol = symbols[this.value];
+    if (!symbol) return;
+
+    chart.innerHTML = `
+      <div class="tradingview-widget-container" style="height:100%;width:100%">
+        <div class="tradingview-widget-container__widget"
+             style="height:calc(100% - 32px);width:100%"></div>
+        <script type="text/javascript"
+          src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js"
+          async>
+        <\/script>
+      </div>`;
+
+    const script = document.createElement("script");
+    script.src = "https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js";
+    script.async = true;
+    script.innerHTML = JSON.stringify({
+      autosize: true,
+      symbol: symbol,
+      interval: "5",
+      timezone: "Africa/Johannesburg",
+      theme: "dark",
+      style: "1",
+      locale: "en",
+      allow_symbol_change: true,
+      support_host: "https://www.tradingview.com"
+    });
+
+    chart.querySelector(".tradingview-widget-container").appendChild(script);
+  });
+})();
+</script>  
 </body>
 </html>
